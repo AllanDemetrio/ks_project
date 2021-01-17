@@ -48,14 +48,24 @@ architecture rtl of data_path is
 begin
     --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
     --Controle da ULA
-    data_out <= bus_a;
-    neg_op <= ula_out(15);
+    if flags_reg_enable == '1' then
+    neg_op <= ula_out(15);  
     zero_op <= '1' when ula_out == x"00" else '0';
+    if operation == "10" then
+      unsigned_overflow <= ((bus_a(15)=='0' and ula_out(15)=='1') or (bus_a(15)=='0' and bus_b(15)=='1') or (bus_b(15)=='1' and ula_out(15)=='1'))  --A'C+A'B+BC
+    end if ;
+    if operation == "01" then
+      unsigned_overflow <= ((ula_out(15)=='0' and bus_b(15)=='1') or (ula_out(15)=='0' and bus_a(15)=='1') or (bus_b(15)=='1' and bus_a(15)=='1'))  --BC'+AC'+AB
+    end if ;
+    
+    end if ;
+    data_out <= bus_a;
     ula_out <=  bus_a and bus_b when operation = "11" else   --AND   11
                 bus_a - bus_b when operation = "10" else  --SUB   10
                 bus_a + bus_b when operation = "01" else   --ADD   01
                 bus_a OR bus_b;                          --OR    00
     bus_c <= ula_out when c_sel = '0' else data_in;   --Se lembrar na hora de fazer o Control Unit
+    
     
     --Controle do PC
     ram_addr <= mem_addr when addr_sel == '0' else program_counter;
