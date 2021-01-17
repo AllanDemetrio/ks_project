@@ -1,19 +1,6 @@
 ----------------------------------------------------------------------------------
--- Company: UERGS
--- Engineer: Joao Leonardo Fragoso
--- 
--- Create Date:    19:04:44 06/26/2012 
--- Design Name:    K and S Modeling
--- Module Name:    data_path - rtl 
--- Description:    RTL Code for the K and S datapath
---
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
---          0.02 - Moving Vivado 2017.3
--- Additional Comments: 
---
+-- Trabalho K&S
+-- Alunos: Allan Demetrio, João Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -44,9 +31,31 @@ entity data_path is
 end data_path;
 
 architecture rtl of data_path is
+  type reg_bank_type is array(natural range <>) of std_logic_vector(15 downto 0);
+  signal banco_de_reg : reg_bank_type(0 to 15);
+  signal  bus_a : std_logic_vector(15 downto 0);
+  signal  bus_b : std_logic_vector(15 downto 0);
+  signal  bus_c : std_logic_vector(15 downto 0);
+  signal  a_addr :  std_logic_vector(1 downto 0);
+  signal  b_addr :  std_logic_vector(1 downto 0);
+  signal  c_addr :  std_logic_vector(1 downto 0);
+  signal  ula_out :  std_logic_vector(15 downto 0);
+  signal  instruction :  std_logic_vector(15 downto 0);
+  signal  mem_addr  : std_logic_vector(4 downto 0);
+  signal  program_counter : std_logic_vector(4 downto 0);
+  signal  branch_out  : std_logic_vector(4 downto 0);
 
 begin
-    ram_addr <= (others => '0'); -- just to avoid messaging from test... remove this line
+    --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
+    
+    neg <= alu_out(15);
+    zero <= '1' when alu_out == x"00" else '0';
+    alu_out <=  bus_a and bus_b when operation = "11" else   --AND   11
+                bus_a - bus_b when operation = "10" else  --SUB   10
+                bus_a + bus_b when operation = "01" else   --ADD   01
+                bus_a OR bus_b;                          --OR    00
+    bus_c <= ula_out when c_sel = '0' else data_in;   --Se lembrar na hora de fazer o Control Unit
+
 
 end rtl;
 
