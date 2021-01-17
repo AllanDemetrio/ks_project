@@ -47,14 +47,22 @@ architecture rtl of data_path is
 
 begin
     --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
-    
-    neg <= alu_out(15);
-    zero <= '1' when alu_out == x"00" else '0';
-    alu_out <=  bus_a and bus_b when operation = "11" else   --AND   11
+    --Controle da ULA
+    data_out <= bus_a;
+    neg_op <= ula_out(15);
+    zero_op <= '1' when ula_out == x"00" else '0';
+    ula_out <=  bus_a and bus_b when operation = "11" else   --AND   11
                 bus_a - bus_b when operation = "10" else  --SUB   10
                 bus_a + bus_b when operation = "01" else   --ADD   01
                 bus_a OR bus_b;                          --OR    00
     bus_c <= ula_out when c_sel = '0' else data_in;   --Se lembrar na hora de fazer o Control Unit
+    
+    --Controle do PC
+    ram_addr <= mem_addr when addr_sel == '0' else program_counter;
+    branch_out <= program_counter+1 when branch == '0' else mem_addr;
+    program_counter <= branch_out when pc_enable == '1' else '0';
+
+
 
 
 end rtl;
