@@ -41,7 +41,7 @@ architecture rtl of data_path is
   signal  c_addr :  std_logic_vector(1 downto 0);
   signal  ula_out :  std_logic_vector(15 downto 0);
   signal  instruction :  std_logic_vector(15 downto 0);
-  signal  mem_addr  : std_logic_vector(4 downto 0);
+  alias  mem_addr  : std_logic_vector(4 downto 0) is instruction(4 downto 0);
   signal  program_counter : std_logic_vector(4 downto 0);
   signal  branch_out  : std_logic_vector(4 downto 0);
 
@@ -59,11 +59,23 @@ begin
     
     --Controle do PC
     ram_addr <= mem_addr when addr_sel == '0' else program_counter;
-    branch_out <= program_counter+1 when branch == '0' else mem_addr;
-    program_counter <= branch_out when pc_enable == '1' else '0';
+    --if instruction != x"00" then
+      branch_out <= program_counter+1 when branch == '0' else mem_addr;  
+    --end if ;
+    program_counter <= branch_out when pc_enable == '1' else x"00";
 
+    --Intepretador de Instruções
+    instruction <= data_in when ir_enable == '1' else x"00";
 
-
+    --Decoder
+    if instruction(15 downto 13) == "101" then
+      a_addr <= instruction(5 downto 4);
+      elsif instruction(15 downto 12) == "1000" then
+        a_addr <= instruction(6 downto 5);
+    end if ;
+    --MOVE MEXE COM B E C
+    b_addr <= instruction(3 downto 2);
+    c_addr <= instruction(1 downto 0);
+  --decoded_instruction <= instruction;
 
 end rtl;
-
