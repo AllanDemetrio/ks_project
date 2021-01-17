@@ -48,17 +48,21 @@ architecture rtl of data_path is
 begin
     --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
     --Controle da ULA
-    if flags_reg_enable == '1' then
-    neg_op <= ula_out(15);  
-    zero_op <= '1' when ula_out == x"00" else '0';
-    if operation == "10" then
-      unsigned_overflow <= ((bus_a(15)=='0' and ula_out(15)=='1') or (bus_a(15)=='0' and bus_b(15)=='1') or (bus_b(15)=='1' and ula_out(15)=='1'))  --A'C+A'B+BC
+
+    if flags_reg_enable == '1' then --Clock
+      neg_op <= ula_out(15);  
+      zero_op <= '1' when ula_out == x"00" else '0';
+      if operation == "10" then
+        unsigned_overflow <= ((bus_a(15)=='0' and ula_out(15)=='1') or (bus_a(15)=='0' and bus_b(15)=='1') or (bus_b(15)=='1' and ula_out(15)=='1'))  --A'C+A'B+BC
+        signed_overflow <= ((bus_a(15)=='0' and bus_b(15)=='1' and ula_out(15)=='1') or (bus_a(15)=='1' and bus_b(15)=='0' and ula_out(15)=='0'))--A'BC + AB'C'
+      end if ;
+      if operation == "01" then
+        unsigned_overflow <= ((ula_out(15)=='0' and bus_b(15)=='1') or (ula_out(15)=='0' and bus_a(15)=='1') or (bus_b(15)=='1' and bus_a(15)=='1'))  --BC'+AC'+AB
+        signed_overflow <= ((bus_a(15)=='0' and bus_b(15)=='0' and ula_out(15)=='1') or (bus_a(15)=='1' and bus_b(15)=='1' and ula_out(15)=='0'))--A'B'C + ABC'
+      end if ;    
     end if ;
-    if operation == "01" then
-      unsigned_overflow <= ((ula_out(15)=='0' and bus_b(15)=='1') or (ula_out(15)=='0' and bus_a(15)=='1') or (bus_b(15)=='1' and bus_a(15)=='1'))  --BC'+AC'+AB
-    end if ;
+
     
-    end if ;
     data_out <= bus_a;
     ula_out <=  bus_a and bus_b when operation = "11" else   --AND   11
                 bus_a - bus_b when operation = "10" else  --SUB   10
@@ -66,16 +70,15 @@ begin
                 bus_a OR bus_b;                          --OR    00
     bus_c <= ula_out when c_sel = '0' else data_in;   --Se lembrar na hora de fazer o Control Unit
     
-    
     --Controle do PC
     ram_addr <= mem_addr when addr_sel == '0' else program_counter;
     --if instruction != x"00" then
       branch_out <= program_counter+1 when branch == '0' else mem_addr;  
     --end if ;
-    program_counter <= branch_out when pc_enable == '1' else x"00";
+    program_counter <= branch_out when pc_enable == '1' else x"00"; --Clock
 
     --Intepretador de Instruções
-    instruction <= data_in when ir_enable == '1' else x"00";
+    instruction <= data_in when ir_enable == '1' else x"00"; --Clock
 
     --Decoder
     if instruction(15 downto 13) == "101" then
