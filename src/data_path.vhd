@@ -32,6 +32,8 @@ end data_path;
 
 architecture rtl of data_path is
   type reg_bank_type is array(natural range <>) of std_logic_vector(15 downto 0);
+  -- JLF : O KS so tem 4 registradores - e não 16. -- não será problema,
+  -- mas só os primeiro 4 serão usados já que o endereços (a,b,c_addr) são só de 2 bits
   signal banco_de_reg : reg_bank_type(0 to 15);
   signal  bus_a : std_logic_vector(15 downto 0);
   signal  bus_b : std_logic_vector(15 downto 0);
@@ -54,6 +56,9 @@ begin
     --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
     --Controle da ULA
 
+                              
+    -- JLF: if/case só podem ser usados em processos
+    -- não tem problema criar um processo combinacional - mas crie processos para os if/case
     if flags_reg_enable == '1' then --Clock
       neg_op <= ula_out(15);  
       zero_op <= '1' when ula_out == x"00" else '0';
@@ -86,6 +91,7 @@ begin
     instruction <= data_in when ir_enable == '1' else x"00"; --Clock
 
     --Decoder
+    -- JLF: Mesmo comentario anterior - dentro de um processo                          
     if instruction(15 downto 13) == "101" then
       a_addr <= instruction(5 downto 4);
       elsif instruction(15 downto 12) == "1000" then
