@@ -46,6 +46,11 @@ architecture rtl of data_path is
   signal  branch_out  : std_logic_vector(4 downto 0);
 
 begin
+    --conv_integer transforma em int o que estamos pegando de a/b_addr
+    --banco de regs
+    bus_a <= banco_de_reg(conv_integer(a_addr));
+    bus_b <= banco_de_reg(conv_integer(b_addr));
+    bus_c <= ula_out when c_sel = '0' else data_in;
     --ram_addr <= (others => '0'); just to avoid messaging from test... remove this line
     --Controle da ULA
 
@@ -68,7 +73,7 @@ begin
                 bus_a - bus_b when operation = "10" else  --SUB   10
                 bus_a + bus_b when operation = "01" else   --ADD   01
                 bus_a OR bus_b;                          --OR    00
-    bus_c <= ula_out when c_sel = '0' else data_in;   --Se lembrar na hora de fazer o Control Unit
+    --bus_c <= ula_out when c_sel = '0' else data_in;  Se lembrar na hora de fazer o Control Unit foi pra linha 52 qualquer coisa
     
     --Controle do PC
     ram_addr <= mem_addr when addr_sel == '0' else program_counter;
