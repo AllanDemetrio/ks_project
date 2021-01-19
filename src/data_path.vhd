@@ -68,12 +68,46 @@ begin
         elsif (instruction(15 downto 12) = "1000") then
           c_addr <= instruction(6 downto 5);
       end if ;
+
+      if (instruction(15) = '0')  then
+        case (instruction(9 downto 8)) is
+          when "01" =>
+            decoded_instruction <= I_BRANCH;
+          when "10" =>
+            decoded_instruction <= I_BZERO;
+          when "11" =>
+            decoded_instruction <= I_BNEG;
+          when others => 
+            decoded_instruction <= I_NOP;
+        end case;
+
+      elsif (instruction(15) = '1') then
+        case (instruction(14 downto 7)) is
+          when "00100010" =>  --MOVE
+            decoded_instruction <= I_MOVE;
+          when "01000010" => --ADD
+            decoded_instruction <= I_ADD;
+          when "01000100" => --SUB
+            decoded_instruction <= I_SUB;
+          when "01000110" => --AND
+            decoded_instruction <= I_AND;
+          when "01001000" => --OR
+            decoded_instruction <= I_OR;
+          when "00000010" => --LOAD
+            decoded_instruction <= I_LOAD;
+          when "00000100" => --STORE
+            decoded_instruction <= I_STORE;
+          when others =>
+            decoded_instruction <= I_HALT;
+        end case;
+
+      end if ;
+
     end process;
 
     --MOVE VAI MEXER COM A E B
     a_addr <= instruction(3 downto 2);
     b_addr <= instruction(1 downto 0);
-  --decoded_instruction <= instruction;
 
   process(clk)
   begin
