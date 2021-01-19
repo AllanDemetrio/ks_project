@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Trabalho K&S
--- Alunos: Allan Demetrio, João Carlos, Lucas Karr
+-- Alunos: Allan Demetrio, JoÃ£o Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,11 +43,11 @@ architecture rtl of control_unit is
     SUB,
     ANDI,
     ORI,
-    BRANCH,
+    BRANCHI,
     BZERO,
     BNEG,
     NOP,
-    HALT
+    HALTI
     );
     signal estado_atual : estados;
     signal prox_estado : estados;
@@ -71,7 +71,7 @@ begin
             case(estado_atual) is
                 when FETCH =>
                     ir_enable <= '1';
-                    flag_enable <= '0';
+                    flags_reg_enable <= '0';
                     pc_enable <='0';
                     write_reg_enable <='0';
                     prox_estado <= DECODE;
@@ -83,29 +83,29 @@ begin
                             prox_estado <= NOP;
 
                         when others =>
-                            prox_estado <= HALT;
+                            prox_estado <= HALTI;
                             
                     
                     end case;
                 
                 when NOP =>
                     ir_enable <= '0';
-                    flag_enable <= '0';
+                    flags_reg_enable <= '0';
                     pc_enable <='1';
                     write_reg_enable <='0';
                     prox_estado <= PROX;
 
-                when HALT =>
+                when HALTI =>
                     ir_enable <= '0';
-                    flag_enable <= '0';
+                    flags_reg_enable <= '0';
                     pc_enable <='0';
                     write_reg_enable <='0';
                     halt <= '1';
-                    prox_estado <= HALT;                                  
+                    prox_estado <= HALTI;                                  
             
                 when others =>  --PROX
                     ir_enable <= '0';
-                    flag_enable <= '0';
+                    flags_reg_enable <= '0';
                     pc_enable <='1';
                     write_reg_enable <='0';
                     prox_estado <= FETCH;

@@ -1,9 +1,10 @@
 ----------------------------------------------------------------------------------
 -- Trabalho K&S
--- Alunos: Allan Demetrio, João Carlos, Lucas Karr
+-- Alunos: Allan Demetrio, JoÃ£o Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.STD_LOGIC_UNSIGNED.all;
 library work;
 use work.k_and_s_pkg.all;
 
@@ -31,8 +32,8 @@ entity data_path is
 end data_path;
 
 architecture rtl of data_path is
-  type reg_bank_type is array(natural range <>) of std_logic_vector(3 downto 0);
-  signal banco_de_reg : reg_bank_type(0 to 15);
+  type reg_bank_type is array(natural range <>) of std_logic_vector(15 downto 0);
+  signal banco_de_reg : reg_bank_type(0 to 3);
   signal  bus_a : std_logic_vector(15 downto 0);
   signal  bus_b : std_logic_vector(15 downto 0);
   signal  bus_c : std_logic_vector(15 downto 0);
@@ -63,7 +64,8 @@ begin
 
     --Decoder
     process
-      if (instruction(15 downto 13) = "101") then
+    begin
+      if ((instruction(15 downto 13)) = "101") then
         c_addr <= instruction(5 downto 4);
         elsif (instruction(15 downto 12) = "1000") then
           c_addr <= instruction(6 downto 5);
@@ -123,23 +125,51 @@ begin
       --Registrador de Flags
       if (flags_reg_enable = '1') then
         neg_op <= ula_out(15);
-        zero_op <= '1' when (ula_out = x"00") else '0';
+        if (ula_out = x"00") then
+            zero_op <= '1';
+        else
+            zero_op <= '0';
+      end if;
+        
         if (operation = "10") then
-          unsigned_overflow <= ((bus_a(15) ='0' and ula_out(15) ='1') or (bus_a(15) ='0' and bus_b(15) ='1') or (bus_b(15) ='1' and ula_out(15) ='1'))  --A'C+A'B+BC
-          signed_overflow <= ((bus_a(15) ='0' and bus_b(15) ='1' and ula_out(15) ='1') or (bus_a(15) ='1' and bus_b(15) ='0' and ula_out(15) ='0')) --A'BC + AB'C'
+            if ((bus_a(15) ='0' and ula_out(15) ='1') or (bus_a(15) ='0' and bus_b(15) ='1') or (bus_b(15) ='1' and ula_out(15) ='1')) then  --A'C+A'B+BC
+                unsigned_overflow <= '1';
+            else
+                unsigned_overflow <= '0';
+            end if;
+            
+            if  ((bus_a(15) ='0' and bus_b(15) ='1' and ula_out(15) ='1') or (bus_a(15) ='1' and bus_b(15) ='0' and ula_out(15) ='0')) then --A'BC + AB'C'
+                signed_overflow <= '1';
+            else
+                signed_overflow <= '0';
+            end if;
         end if ;
+        
         if (operation = "01") then
-          unsigned_overflow <= ((ula_out(15) = '0' and bus_b(15) = '1') or (ula_out(15) = '0' and bus_a(15)='1') or (bus_b(15) = '1' and bus_a(15) ='1')) --BC'+AC'+AB
-          signed_overflow <= ((bus_a(15) = '0' and bus_b(15) = '0' and ula_out(15) = '1') or (bus_a(15) = '1' and bus_b(15) = '1' and ula_out(15) ='0'))  --A'B'C + ABC'
+            if  ((ula_out(15) = '0' and bus_b(15) = '1') or (ula_out(15) = '0' and bus_a(15)='1') or (bus_b(15) = '1' and bus_a(15) ='1')) then --BC'+AC'+AB
+                unsigned_overflow <= '1';
+            else
+                unsigned_overflow <= '0';
+            end if;
+            
+            if (((bus_a(15) = '0' and bus_b(15) = '0' and ula_out(15) = '1') or (bus_a(15) = '1' and bus_b(15) = '1' and ula_out(15) ='0'))) then  --A'B'C + ABC'
+                signed_overflow <= '1';
+            else
+                signed_overflow <= '0';
+            end if;
         end if ;
       end if ;
 
-      --Intepretador de Instruções
-      instruction <= data_in when (ir_enable = '1') else x"00";
-
+      --Intepretador de InstruÃ§Ãµes
+      if (ir_enable = '1') then
+        instruction <= data_in;
+      else
+        instruction <= "0000000000000000";
+      end if;
+      
       --Program Counter
       if ((branch = '0') and (pc_enable = '1')) then
-        program_counter <= program_counter+1;
+        program_counter <= program_counter + 1;
       elsif ((branch = '1') and (pc_enable = '1')) then
         program_counter <= mem_addr;
       end if ;  
