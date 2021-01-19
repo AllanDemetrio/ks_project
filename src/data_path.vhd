@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Trabalho K&S
--- Alunos: Allan Demetrio, JoÃ£o Carlos, Lucas Karr
+-- Alunos: Allan Demetrio, Joao Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -46,7 +46,6 @@ architecture rtl of data_path is
   signal  program_counter : std_logic_vector(4 downto 0);
 
 begin
-
     --Banco de registradores
     bus_a <= banco_de_reg(conv_integer(a_addr));
     bus_b <= banco_de_reg(conv_integer(b_addr));
@@ -76,6 +75,7 @@ begin
       b_addr <= "00";
       c_addr <= "00";
       mem_addr <= instruction(4 downto 0);
+
       if ((instruction(15 downto 13)) = "101") then
         c_addr <= instruction(5 downto 4);
         elsif (instruction(15 downto 12) = "1000") then
@@ -141,7 +141,7 @@ begin
         else
             zero_op <= '0';
       end if;
-      --pc_enable é o único que precisa verificar o rst_n
+      --pc_enable e o unico que precisa verificar o rst_n
       --O processo da ULA precisa de (bus_a,b e operation)
         
         if (operation = "10") then
@@ -173,7 +173,7 @@ begin
         end if ;
       end if ;
 
-      --Intepretador de InstruÃ§Ãµes
+      --Intepretador de Instrucoes
       if (ir_enable = '1') then
         instruction <= data_in;
       --else
@@ -184,14 +184,13 @@ begin
       if (rst_n = '0') then
         program_counter <= "00000";
       elsif (pc_enable = '1') then
-
-        if ((branch = '0') then
+        if (branch = '0') then
           program_counter <= program_counter + 1;
-        elsif ((branch = '1') then
-          program_counter <= mem_addr;  
-        end if ;
-      end if ;  
-    end if ;
+        elsif (branch = '1') then
+          program_counter <= mem_addr;
+        end if;
+      end if;
+    end if;
   
   end process;
 
