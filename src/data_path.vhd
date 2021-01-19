@@ -63,8 +63,19 @@ begin
     ram_addr <= mem_addr when (addr_sel = '0') else program_counter;
 
     --Decoder
-    process
+    --Recebi: A11B
+    --Decode: decoded instruction <= ADD
+    --a_addr <= end. reg
+    --b_addr <= end. reg
+    --c_addr <= end. reg
+    
+    process (instruction)
     begin
+      decoded_instruction <= I_NOP;
+      a_addr <= "00";
+      b_addr <= "00";
+      c_addr <= "00";
+      mem_addr <= instruction(4 downto 0);
       if ((instruction(15 downto 13)) = "101") then
         c_addr <= instruction(5 downto 4);
         elsif (instruction(15 downto 12) = "1000") then
@@ -130,6 +141,8 @@ begin
         else
             zero_op <= '0';
       end if;
+      --pc_enable é o único que precisa verificar o rst_n
+      --O processo da ULA precisa de (bus_a,b e operation)
         
         if (operation = "10") then
             if ((bus_a(15) ='0' and ula_out(15) ='1') or (bus_a(15) ='0' and bus_b(15) ='1') or (bus_b(15) ='1' and ula_out(15) ='1')) then  --A'C+A'B+BC
@@ -163,15 +176,20 @@ begin
       --Intepretador de InstruÃ§Ãµes
       if (ir_enable = '1') then
         instruction <= data_in;
-      else
-        instruction <= "0000000000000000";
+      --else
+        --instruction <= "0000000000000000";
       end if;
       
       --Program Counter
-      if ((branch = '0') and (pc_enable = '1')) then
-        program_counter <= program_counter + 1;
-      elsif ((branch = '1') and (pc_enable = '1')) then
-        program_counter <= mem_addr;
+      if (rst_n = '0') then
+        program_counter <= "00000";
+      elsif (pc_enable = '1') then
+
+        if ((branch = '0') then
+          program_counter <= program_counter + 1;
+        elsif ((branch = '1') then
+          program_counter <= mem_addr;  
+        end if ;
       end if ;  
     end if ;
   
