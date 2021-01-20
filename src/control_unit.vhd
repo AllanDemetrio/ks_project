@@ -5,10 +5,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-
 library work;
 use work.k_and_s_pkg.all;
-
 entity control_unit is
   port (
     rst_n               : in  std_logic;
@@ -30,7 +28,6 @@ entity control_unit is
     halt                : out std_logic
     );
 end control_unit;
-
 architecture rtl of control_unit is
     type estados is (
     FETCH,
@@ -43,15 +40,12 @@ architecture rtl of control_unit is
     MOVE,
     ULA,
     BRANCHI,
-    BRANCH1,
     NOP,
     HALTI
     );
     signal estado_atual : estados;
     signal prox_estado : estados;
-
 begin
-
     process (clk)
         begin
             if (clk'event and clk='1') then
@@ -62,13 +56,11 @@ begin
                 end if;
             end if;
     end process;
-
     process(clk,estado_atual)
         begin
             prox_estado <= estado_atual;
             case(estado_atual) is
                 when FETCH =>
-                    
                     --ram_write_enable <= '0';
                     addr_sel <= '1';
                     c_sel <= '0';
@@ -78,11 +70,9 @@ begin
                     write_reg_enable <='0';
                     halt <= '0';
                     prox_estado <= DECODE;
-
                 when DECODE =>
                     ir_enable <= '0';
                     case decoded_instruction is
-
                         when I_NOP =>
                             prox_estado <= NOP;
                             
@@ -128,8 +118,6 @@ begin
                             end if;
                         when others =>
                             prox_estado <= HALTI;
-                            
-                    
                     end case;
                 
                 when NOP =>
@@ -167,7 +155,7 @@ begin
                 when STORE =>
                     addr_sel <= '0';    
                     ram_write_enable <= '1';
-                    prox_estado <= PROX;                    
+                    prox_estado <= PROX;      
 
                 when MOVE =>
                     ir_enable <= '0';
@@ -184,22 +172,15 @@ begin
                     ir_enable <= '0';
                     flags_reg_enable <= '1';
                     prox_estado <= PROX;
-                    
+
                 when BRANCHI =>
-                    addr_sel <= '0';
                     branch <= '1';
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
-                    prox_estado <= BRANCH1;
-
-                when BRANCH1 =>
-                    pc_enable <= '1';
-                    addr_sel <= '1';
-                    branch <=   '0';
+                    addr_sel <= '0';  
                     prox_estado <= PROX;
 
-                when PROX =>
-                    branch <= '0';
+                when PROX =>       
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     pc_enable <='1';
@@ -210,16 +191,15 @@ begin
                     prox_estado <= PROX1;
             
                 when others =>  --PROX1
+                    branch <= '0';
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     pc_enable <='0';
                     halt <= '0';
                     write_reg_enable <='0';
                     prox_estado <= FETCH;
-
             end case ;
     end process ;
-
 --process to test environment ... remove this
 --    main: process(clk, rst_n)
 --    begin
