@@ -110,7 +110,22 @@ begin
                         when I_AND =>
                             operation <= "11";
                             prox_estado <= ULA;
-                            
+
+                        when I_BRANCH =>
+                            prox_estado <= BRANCHI;
+
+                        when I_BNEG =>
+                            if (neg_op = '1') then
+                                prox_estado <= BRANCHI;
+                            else
+                                prox_estado <= PROX;
+                            end if;
+                        when I_BZERO =>
+                            if (zero_op = '1') then
+                                prox_estado <= BRANCHI;
+                            else
+                                prox_estado <= PROX;
+                            end if;
                         when others =>
                             prox_estado <= HALTI;
                             
@@ -169,7 +184,14 @@ begin
                     ir_enable <= '0';
                     flags_reg_enable <= '1';
                     prox_estado <= PROX;
-                        
+                    
+                when BRANCHI =>
+                    branch <= '1';
+                    ir_enable <= '0';
+                    flags_reg_enable <= '0';
+                    addr_sel <= '0';  
+                    prox_estado <= PROX;
+
                 when PROX =>       
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
