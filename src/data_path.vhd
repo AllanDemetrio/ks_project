@@ -73,6 +73,8 @@ begin
       c_addr <= instruction(5 downto 4);
       elsif (instruction(15 downto 12) = "1000") then
         c_addr <= instruction(6 downto 5);
+      elsif (instruction(15 downto 12) = "1001") then
+        c_addr <= instruction(3 downto 2);
     end if ;
 
     if (instruction(15) = '0')  then
@@ -107,12 +109,19 @@ begin
           decoded_instruction <= I_HALT;
       end case;
     end if ;
+    
+    --MOVE VAI MEXER COM A E B
+    if (instruction(14 downto 7) = "00100010") then
+      a_addr <= instruction(1 downto 0);
+      b_addr <= instruction(1 downto 0);  
+    else
+      a_addr <= instruction(3 downto 2);
+      b_addr <= instruction(1 downto 0);  
+    end if;
   end process;
 
-  --MOVE VAI MEXER COM A E B
-  a_addr <= instruction(3 downto 2);
-  b_addr <= instruction(1 downto 0);
-
+  
+  
   --Controle da ULA
   process(bus_a,bus_b,operation)
     begin

@@ -38,6 +38,7 @@ architecture rtl of control_unit is
     PROX,
     PROX1,
     LOAD,
+    LOAD1,
     STORE,
     MOVE,
     ADD,
@@ -84,7 +85,12 @@ begin
                         when I_NOP =>
                             prox_estado <= NOP;
                             
+                        when I_MOVE =>
+                            prox_estado <= MOVE;
 
+                        when I_LOAD =>
+                            prox_estado <= LOAD;
+                            
                         when others =>
                             prox_estado <= HALTI;
                             
@@ -108,6 +114,31 @@ begin
                     write_reg_enable <='0';
                     halt <= '1';
                     prox_estado <= HALTI;
+
+                when LOAD =>
+                    ir_enable <= '0';
+                    flags_reg_enable <= '0';
+                    addr_sel <= '1';
+                    branch <= '0';
+                    operation <= "00";
+                    c_sel <= '1';
+                    halt <= '0';
+                    write_reg_enable <= '0';
+                    prox_estado <= LOAD1;
+                    
+                when LOAD1 =>
+                    write_reg_enable <= '1';
+                    prox_estado <= PROX;
+
+                when MOVE =>
+                    --Reg 1 <= Reg 2
+                    ir_enable <= '0';
+                    flags_reg_enable <= '0';
+                    operation <= "00";
+                    c_sel <= '0';
+                    halt <= '0';
+                    write_reg_enable <= '1';
+                    prox_estado <= PROX;
                     
                 when PROX =>       
                     ir_enable <= '0';
@@ -115,9 +146,9 @@ begin
                     pc_enable <='1';
                     halt <= '0';
                     write_reg_enable <='0';
-                    prox_estado <= PROX1;                           
+                    prox_estado <= PROX1;
             
-                when others =>  --PROX
+                when others =>  --PROX1
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     pc_enable <='1';
