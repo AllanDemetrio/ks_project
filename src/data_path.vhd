@@ -110,11 +110,13 @@ begin
       end case;
     end if ;
     
-    --MOVE VAI MEXER COM A E B
-    if (instruction(14 downto 7) = "00100010") then
+    
+    if (instruction(14 downto 7) = "00100010") then --MOVE
       a_addr <= instruction(1 downto 0);
-      b_addr <= instruction(1 downto 0);  
-    else
+      b_addr <= instruction(1 downto 0);
+    elsif (instruction(14 downto 7) = "00000100") then  --STORE
+      a_addr <= instruction(6 downto 5);
+    else  --Outras opera��es
       a_addr <= instruction(3 downto 2);
       b_addr <= instruction(1 downto 0);  
     end if;

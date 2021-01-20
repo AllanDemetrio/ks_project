@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Trabalho K&S
--- Alunos: Allan Demetrio, João Carlos, Lucas Karr
+-- Alunos: Allan Demetrio, Jo�o Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -91,7 +91,10 @@ begin
                             
                         when I_MOVE =>
                             prox_estado <= MOVE;
-
+                        
+                        when I_STORE =>
+                            prox_estado <= STORE;
+                            
                         when I_LOAD =>
                             prox_estado <= LOAD;
                             
@@ -133,6 +136,11 @@ begin
                     write_reg_enable <= '1';
                     prox_estado <= PROX;
 
+                when STORE =>
+                    addr_sel <= '0';    
+                    ram_write_enable <= '1';
+                    prox_estado <= PROX;                    
+
                 when MOVE =>
                     --Reg 1 <= Reg 2
                     ir_enable <= '0';
@@ -150,6 +158,7 @@ begin
                     addr_sel <= '1';
                     halt <= '0';
                     write_reg_enable <='0';
+                    ram_write_enable <='0';
                     prox_estado <= PROX1;
             
                 when others =>  --PROX1
