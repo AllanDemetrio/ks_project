@@ -72,6 +72,9 @@ begin
             prox_estado <= estado_atual;
             case(estado_atual) is
                 when FETCH =>
+                    --ram_write_enable <= '0';
+                    addr_sel <= '1';
+                    c_sel <= '0';
                     ir_enable <= '1';
                     flags_reg_enable <= '0';
                     pc_enable <='0';
@@ -80,6 +83,7 @@ begin
                     prox_estado <= DECODE;
 
                 when DECODE =>
+                    ir_enable <= '0';
                     case decoded_instruction is
 
                         when I_NOP =>
@@ -101,7 +105,7 @@ begin
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     branch <= '0';
-                    pc_enable <='1';
+                    pc_enable <='0';
                     halt <= '0';
                     write_reg_enable <='0';
                     prox_estado <= PROX;
@@ -118,15 +122,14 @@ begin
                 when LOAD =>
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
-                    addr_sel <= '1';
+                    addr_sel <= '0';
                     branch <= '0';
-                    operation <= "00";
-                    c_sel <= '1';
                     halt <= '0';
                     write_reg_enable <= '0';
                     prox_estado <= LOAD1;
                     
                 when LOAD1 =>
+                    c_sel <= '1';
                     write_reg_enable <= '1';
                     prox_estado <= PROX;
 
@@ -144,6 +147,7 @@ begin
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     pc_enable <='1';
+                    addr_sel <= '1';
                     halt <= '0';
                     write_reg_enable <='0';
                     prox_estado <= PROX1;
@@ -151,7 +155,7 @@ begin
                 when others =>  --PROX1
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
-                    pc_enable <='1';
+                    pc_enable <='0';
                     halt <= '0';
                     write_reg_enable <='0';
                     prox_estado <= FETCH;
