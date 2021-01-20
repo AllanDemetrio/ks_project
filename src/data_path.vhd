@@ -116,7 +116,7 @@ begin
       b_addr <= instruction(1 downto 0);
     elsif (instruction(14 downto 7) = "00000100") then  --STORE
       a_addr <= instruction(6 downto 5);
-    else  --Outras opera��es
+    else  --Outras operacoes
       a_addr <= instruction(3 downto 2);
       b_addr <= instruction(1 downto 0);  
     end if;

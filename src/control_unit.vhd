@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Trabalho K&S
--- Alunos: Allan Demetrio, Jo�o Carlos, Lucas Karr
+-- Alunos: Allan Demetrio, Joao Carlos, Lucas Karr
 ----------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
@@ -43,8 +43,7 @@ architecture rtl of control_unit is
     MOVE,
     ULA,
     BRANCHI,
-    BZERO,
-    BNEG,
+    BRANCH1,
     NOP,
     HALTI
     );
@@ -69,6 +68,7 @@ begin
             prox_estado <= estado_atual;
             case(estado_atual) is
                 when FETCH =>
+                    
                     --ram_write_enable <= '0';
                     addr_sel <= '1';
                     c_sel <= '0';
@@ -186,13 +186,20 @@ begin
                     prox_estado <= PROX;
                     
                 when BRANCHI =>
+                    addr_sel <= '0';
                     branch <= '1';
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
-                    addr_sel <= '0';  
+                    prox_estado <= BRANCH1;
+
+                when BRANCH1 =>
+                    pc_enable <= '1';
+                    addr_sel <= '1';
+                    branch <=   '0';
                     prox_estado <= PROX;
 
-                when PROX =>       
+                when PROX =>
+                    branch <= '0';
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     pc_enable <='1';
