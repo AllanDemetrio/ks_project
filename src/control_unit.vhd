@@ -41,10 +41,7 @@ architecture rtl of control_unit is
     LOAD1,
     STORE,
     MOVE,
-    ADD,
-    SUB,
-    ANDI,
-    ORI,
+    ULA,
     BRANCHI,
     BZERO,
     BNEG,
@@ -97,6 +94,22 @@ begin
                             
                         when I_LOAD =>
                             prox_estado <= LOAD;
+
+                        when I_OR =>
+                            operation <= "00";
+                            prox_estado <= ULA;
+
+                        when I_ADD =>
+                            operation <= "01";
+                            prox_estado <= ULA;
+
+                        when I_SUB =>
+                            operation <= "10";
+                            prox_estado <= ULA;
+
+                        when I_AND =>
+                            operation <= "11";
+                            prox_estado <= ULA;
                             
                         when others =>
                             prox_estado <= HALTI;
@@ -142,7 +155,6 @@ begin
                     prox_estado <= PROX;                    
 
                 when MOVE =>
-                    --Reg 1 <= Reg 2
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
                     operation <= "00";
@@ -151,6 +163,13 @@ begin
                     write_reg_enable <= '1';
                     prox_estado <= PROX;
                     
+                when ULA =>
+                    c_sel <= '0';
+                    write_reg_enable <= '1';
+                    ir_enable <= '0';
+                    flags_reg_enable <= '1';
+                    prox_estado <= PROX;
+                        
                 when PROX =>       
                     ir_enable <= '0';
                     flags_reg_enable <= '0';
